@@ -1,0 +1,45 @@
+# node modules
+node_modules/
+
+# datasets
+*.csv
+
+# compressed files
+*.7z
+*.tar.xz
+*.zip
+
+# Log files
+*.log
+
+# Compiled Python bytecode
+*.py[cod]
+*.pyc
+__pycache__/
+server/__pycache__
+
+# app git 
+app/.git
+
+# server pdfs
+server/*.pdf
+
+# server images
+server/*.png
+server/*.jpg
+server/*.jpeg
+server/*.webp
+
+# server videos
+server/*.mp4
+server/*.avi
+server/*.mkv
+
+# server audio
+server/*.mp3
+server/*.aac
+server/*.wav
+server/*.m4a
+server/*.3gp
+server/*.webm
+server/*.wma
