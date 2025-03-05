@@ -27,6 +27,7 @@ class Splash extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
+                <StatusBar style="auto" hidden={true} />
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
@@ -35,8 +36,11 @@ class Splash extends Component {
             </View>
         }
         
-        return<View style={styles.container}>
-            
+        return<View style={{flex: 1, backgroundColor: '#40744dff', width: '100%'}}>
+            <StatusBar style="auto" hidden={true} />
+            <View>
+                <Image source={require('./assets/splash.png')} style={{width: '100%', height: 700, marginLeft: 'auto', marginRight: 'auto', resizeMode: 'contain'}}/>
+            </View>
         </View>
     }
 

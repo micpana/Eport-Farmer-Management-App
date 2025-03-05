@@ -80,8 +80,7 @@ class App extends Component {
 
         return(
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="Splash">
-                    <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false }} />
+                <Stack.Navigator initialRouteName="Landing">
                     <Stack.Screen name="Landing" component={Landing} options={{ headerShown: false }} />
                     <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                     <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />

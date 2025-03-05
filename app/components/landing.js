@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component }  from 'react';
-import { StyleSheet, Text, View, Button, Picker, TextInput, TouchableOpacity, Pressable, FlatList, ScrollView, Alert} from 'react-native';
+import { StyleSheet, Text, View, Button, Picker, ImageBackground, TextInput, TouchableOpacity, Pressable, FlatList, ScrollView, Alert} from 'react-native';
 import { Image } from 'expo-image';
 import { Octicons, FontAwesome, AntDesign, Ionicons, Feather, Entypo } from '@expo/vector-icons';
 import axios from 'axios';
@@ -27,7 +27,7 @@ class Landing extends Component {
 
     render() {
         if (this.state.loading === true){
-            return<View style={styles.container}>
+            return <View style={styles.container}>
                 <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
@@ -37,11 +37,32 @@ class Landing extends Component {
             </View>
         }
         
-        return<View style={styles.container}>
-            <ScrollView style={styles.scroll_view}>
-
-            </ScrollView>
-        </View>
+        return <ImageBackground
+            source={require('./assets/splash.png')} 
+            style={{flex: 1, width: null, height: null, resizeMode: 'cover'}}
+        >
+            <View style={styles.container}>
+                <Text style={{textAlign: 'left', marginTop: 50, fontSize: 40}}>
+                    The future of farming, today
+                </Text>
+                <TouchableOpacity
+                    key='Sign in'
+                    onPress={() => this.props.navigation.navigate('Login')}
+                    style={{
+                        backgroundColor: '#40744dff', marginLeft: 'auto', marginRight: 'auto', marginTop: 200, width: '90%', height: 50, 
+                        borderRadius: 10, borderWidth: 1, borderColor: '#40744dff'
+                    }}
+                >
+                    <Text 
+                        style={{
+                            textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                        }}
+                    >
+                        Sign in
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </ImageBackground>
     }
 
 }
