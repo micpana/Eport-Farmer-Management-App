@@ -1,82 +1,71 @@
+from mongoengine import connect
+from mongoengine import Q
 from models import Users
-import mongoengine
-from mongoengine import connect, connection, get_connection, disconnect
-from mongomock import MongoClient
+from pytz import timezone
+from datetime import datetime, timedelta
+from encryption import encrypt_password, verify_encrypted_password
 import dns
 import urllib
-from encryption import encrypt_password, verify_encrypted_password
-from datetime import datetime
 import os
+import ssl
 
-# get live database credentials from environment variables
-live_db_username = os.environ.get('LIVE_DB_USERNAME')
-live_db_password = os.environ.get('LIVE_DB_PASSWORD')
-live_db_url = os.environ.get('LIVE_DB_URL')
+# database to use *************************************************************************************************************
+database_to_use = 'development' # mock / development / production
+# *****************************************************************************************************************************
 
-# get development database credentials from environment variables (Optional, can work without this)
-# development_db_username = os.environ.get('DEVELOPMENT_DB_USERNAME')
-# development_db_password = os.environ.get('DEVELOPMENT_DB_PASSWORD')
-development_db_username = 'admin'
-development_db_password = 'test@1234!'
+# db connection ***************************************************************************************************************
+# mock db
+if database_to_use == 'mock':
+    # mongo mock import
+    from mongomock import MongoClient
+    # mongo mock client
+    client = MongoClient(mongo_client_class=MongoClient, db_name="eport-farmers-app")
+    # port
+    port = client.address[1]
+    # connect
+    connect(host=f"localhost:{port}", mongo_client_class=MongoClient)
 
-# get selected database ... mock / development / live
-selected_database = 'development'
+# development db
+if database_to_use == 'development':
+    # connect
+    connect('eport-farmers-app', host='localhost', port=27017, alias='default')
 
-# function to connect to the database *****************************************************************************************************
-def connect_to_database():
-    if selected_database == 'mock':
-        # mock db connection
-        client = MongoClient(mongo_client_class=MongoClient, db_name="eport-farmers-app-mock")
-        port = client.address[1]
-        connect(host=f"localhost:{port}", mongo_client_class=MongoClient)
-    elif selected_database == 'development':
-        # development db connection
-        connect_url = 'mongodb://'+development_db_username+':'+urllib.parse.quote(development_db_password)+'@localhost:27017/eport-farmers-app-development'
-        connect(host=connect_url)
-    elif selected_database == 'live':
-        # live db connection
-        connect_url = 'mongodb+srv://'+live_db_username+':'+urllib.parse.quote(live_db_password)+live_db_url
-        connect(host=connect_url, ssl=True, ssl_cert_reqs='CERT_NONE')
-    else:
-        print('UNKNOWN DATABASE SELECTION:', selected_database)
-# *****************************************************************************************************************************************
+if database_to_use == 'production':
+    # get live database credentials from environment variables
+    live_db_username = os.environ.get('LIVE_DB_USERNAME')
+    live_db_password = os.environ.get('LIVE_DB_PASSWORD')
+    live_db_url = '@'
+    # connection url
+    connect_url = 'mongodb+srv://'+live_db_username+':'+urllib.parse.quote(live_db_password)+live_db_url
+    # connect
+    connect(host=connect_url, ssl=True, alias='default')
+# *****************************************************************************************************************************
 
-# connect to db ***************************************************************************************************************************
-# get the MongoDB client from the MongoEngine connection
-try:
-    # client
-    client = get_connection()
-    # check if the connection is already established
-    if client is None:
-        print("\n\nNo client connection available. Attempting to connect...")
-        connect_to_database()
-        print("New database connection established.")
-    else:
-        print("\n\nClient connection retrieved.")
-        # if client is not None, check if it's primary
-        if client.is_primary:
-            print("Already connected to the primary database.")
-        else:
-            print("Connected to a secondary node.")
-except mongoengine.connection.ConnectionFailure as e:
-    print(f'\n\nConnection failed: {e}')
-    print('Establishing new database connection.')
-    connect_to_database()
-    print("New database connection established.")
-except Exception as e:
-    print(f"\n\nAn unexpected error occurred: {e}")
-    connect_to_database()
-# *****************************************************************************************************************************************
-
-# initialize database *********************************************************************************************************************
 def init_db():
-    # get all users *************************************************************************************************************
-    users = Users.objects.all()
-    # ***************************************************************************************************************************
-# *****************************************************************************************************************************************
 
-# close database connection ***************************************************************************************************************
-def close_db():
-    # disconnect from connection url
-    disconnect()
-# *****************************************************************************************************************************************
+    # get all users *************************************************************************************************************
+    all_users = list(Users.objects.all())
+    # ***************************************************************************************************************************
+    # initialize admin and clerk accounts ***************************************************************************************
+    if len(all_users) == 0:
+        # admin
+        admin_details = Users(
+            firstname = 'System',
+            lastname = 'Administrator',
+            email = 'sysadmin@farmersapp.com',
+            password = str(encrypt_password('Initial@1234')),
+            role = 'admin'
+        )
+        admin_details.save()
+        
+        # clerk
+        clerk_details = Users(
+            firstname = 'Michael',
+            lastname = 'Mudimbu',
+            email = 'michaelmudimbu@gmail.com',
+            password = str(encrypt_password('Test@1234')),
+            role = 'clerk'
+        )
+        clerk_details.save()
+    # ***************************************************************************************************************************
+    # *************************************************************************************************************************
