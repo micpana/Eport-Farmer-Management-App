@@ -84,7 +84,7 @@ class Login extends Component {
             return<View style={styles.container}>
                 <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
-                    <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
                     </Text>
                 </View>
@@ -92,7 +92,62 @@ class Login extends Component {
         }
         
         return<View style={styles.container}>
-            
+            <ScrollView style={styles.scroll_view}>
+                <View>
+                    <Image source={require('../assets/signin-top-background.png')} 
+                        style={{
+                            width: '100%', height: 174, marginLeft: 'auto', marginRight: 'auto', resizeMode: 'contain'
+                        }}
+                    />
+                </View>
+                <View style={{marginLeft: 20, marginRight: 20}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center', fontSize: 30, marginTop: 40}}>
+                        Welcome Back
+                    </Text>
+                    <Text style={{color: 'grey', textAlign: 'center', fontSize: 15, marginTop: 20}}>
+                        Sign in to continue
+                    </Text>
+                    <TextInput
+                        // autoFocus={true}
+                        onChangeText={(text) => this.HandleChange(text, "email")}
+                        placeholder="Email"
+                        placeholderTextColor='#40744d'
+                        value={this.state.email}
+                        style={{
+                            alignSelf: 'center', width: '100%', marginTop: 50, borderWidth: 0, borderColor: 'transparent',
+                            backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                        }}
+                    />
+                    <TextInput
+                        // autoFocus={true}
+                        onChangeText={(text) => this.HandleChange(text, "password")}
+                        placeholder="Password"
+                        placeholderTextColor='grey'
+                        value={this.state.password}
+                        secureTextEntry={true}
+                        style={{
+                            alignSelf: 'center', width: '100%', marginTop: 20, borderWidth: 0, borderColor: 'transparent',
+                            backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                        }}
+                    />
+                    <TouchableOpacity
+                        key='Login'
+                        onPress={() => this.Login()}
+                        style={{
+                            backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                            borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                        }}
+                    >
+                        <Text 
+                            style={{
+                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                            }}
+                        >
+                            Login
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         </View>
     }
 

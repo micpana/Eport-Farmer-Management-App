@@ -36,10 +36,10 @@ class Splash extends Component {
             </View>
         }
         
-        return<View style={{flex: 1, backgroundColor: '#40744dff', width: '100%'}}>
+        return<View style={{flex: 1, backgroundColor: '#40744d', width: '100%'}}>
             <StatusBar style="auto" hidden={true} />
             <View>
-                <Image source={require('./assets/splash.png')} style={{width: '100%', height: 700, marginLeft: 'auto', marginRight: 'auto', resizeMode: 'contain'}}/>
+                <Image source={require('../assets/splash.png')} style={{width: '100%', height: 700, marginLeft: 'auto', marginRight: 'auto', resizeMode: 'contain'}}/>
             </View>
         </View>
     }

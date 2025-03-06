@@ -38,29 +38,33 @@ class Landing extends Component {
         }
         
         return <ImageBackground
-            source={require('./assets/splash.png')} 
-            style={{flex: 1, width: null, height: null, resizeMode: 'cover'}}
+            source={require('../assets/landing-background.jpg')} 
+            style={{flex: 1, width: null, height: null, resizeMode: 'fit'}}
         >
             <View style={styles.container}>
-                <Text style={{textAlign: 'left', marginTop: 50, fontSize: 40}}>
-                    The future of farming, today
-                </Text>
-                <TouchableOpacity
-                    key='Sign in'
-                    onPress={() => this.props.navigation.navigate('Login')}
-                    style={{
-                        backgroundColor: '#40744dff', marginLeft: 'auto', marginRight: 'auto', marginTop: 200, width: '90%', height: 50, 
-                        borderRadius: 10, borderWidth: 1, borderColor: '#40744dff'
-                    }}
-                >
-                    <Text 
+                <View style={{marginLeft: 20, marginRight: 20}}>
+                    <Text style={{
+                        textAlign: 'left', marginTop: 90, fontSize: 40, color: '#ffffff', fontWeight: '600'
+                    }}>
+                        The future of farming, today
+                    </Text>
+                    <TouchableOpacity
+                        key='Sign in'
+                        onPress={() => this.props.navigation.navigate('Login')}
                         style={{
-                            textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                            backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 200, width: '100%', height: 50, 
+                            borderRadius: 20, borderWidth: 0, borderColor: 'transparent'
                         }}
                     >
-                        Sign in
-                    </Text>
-                </TouchableOpacity>
+                        <Text 
+                            style={{
+                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                            }}
+                        >
+                            Sign in
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </ImageBackground>
     }
@@ -72,7 +76,7 @@ export default Landing;
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#ffffff',
+    //   backgroundColor: '#ffffff',
     //   textAlign: 'left',
     //   justifyContent: 'center'
     },

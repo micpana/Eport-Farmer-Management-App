@@ -29,6 +29,8 @@ import AddUser from './components/add_user';
 import Users from './components/users';
 import Signout from './components/signout';
 
+const Stack = createStackNavigator();
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -71,7 +73,7 @@ class App extends Component {
             return<View style={styles.container}>
                 <StatusBar style="auto" hidden={false} />
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
-                    <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
                     </Text>
                 </View>
@@ -80,6 +82,7 @@ class App extends Component {
 
         return(
             <NavigationContainer>
+                <StatusBar style="auto" hidden={true} />
                 <Stack.Navigator initialRouteName="Landing">
                     <Stack.Screen name="Landing" component={Landing} options={{ headerShown: false }} />
                     <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />

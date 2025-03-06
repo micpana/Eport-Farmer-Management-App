@@ -89,7 +89,7 @@ class Signout extends Component {
             return<View style={styles.container}>
                 <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
-                    <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
                     </Text>
                 </View>
@@ -99,13 +99,13 @@ class Signout extends Component {
         return<View style={styles.container}>
             <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
             <ScrollView style={styles.scroll_view}>
-                <Text style={{color: '#5c708b', fontWeight: 'bold', fontSize: 18, marginTop: 180, textAlign: 'center'}}>
+                <Text style={{color: '#40744d', fontWeight: 'bold', fontSize: 18, marginTop: 180, textAlign: 'center'}}>
                     {this.state.user_name}
                 </Text>
                 <TouchableOpacity
                     key='Signout'
                     onPress={() => this.Signout_()}
-                    style={{backgroundColor: '#5c708b', marginLeft: 'auto', marginRight: 'auto', marginTop: 100, marginBottom: 0, width: '90%', height: 50, borderRadius: 5, borderWidth: 1, borderColor: '#5c708b'}}
+                    style={{backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 100, marginBottom: 0, width: '90%', height: 50, borderRadius: 5, borderWidth: 1, borderColor: '#40744d'}}
                 >
                     <Text style={{textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17}}>
                         Signout
