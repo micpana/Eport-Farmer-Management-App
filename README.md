@@ -21,11 +21,11 @@ Features
 
 Project Structure
 Backend
--The backend server is built using Python 3.12.2 and Flask. It serves as the API for managing farmer data and handles requests from the mobile app. All backend dependencies are listed in the requirements.txt file.
+- The backend server is built using Python 3.12.2 and Flask. It serves as the API for managing farmer data and handles requests from the mobile app. All backend dependencies are listed in the requirements.txt file.
 
 
 Frontend
--The mobile app is built using React Native and Expo (~52.0.31). The app communicates with the backend API to manage farmer data and also supports offline functionality with local SQLite storage.
+- The mobile app is built using React Native and Expo (~52.0.31). The app communicates with the backend API to manage farmer data and also supports offline functionality with local SQLite storage.
 
 Installation
 Backend Setup
