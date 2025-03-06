@@ -14,17 +14,106 @@ class Farmers extends Component {
         super(props);
         this.state = {
             loading: false,
+            user_access_token: '',
+            user_name: '',
+            user_details: {},
+            farmers: []
         }
 
         this.HandleChange = (value, state) => {
             this.setState({ [state]: value })
         }
+        
+        this.GetUserData = async () => {
+            var should_reload = false
+
+            // get access token
+            let token = await SecureStore.getItemAsync('token');
+            if (token){
+                this.setState({user_access_token: token})
+            }else{ should_reload = true }
+
+            // get username
+            let user_name = await SecureStore.getItemAsync('user_name');
+            if (user_name){
+                this.setState({user_name: user_name})
+            }else{ should_reload = true }
+
+            if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserData()}, 1000) }
+            else{ this.GetAccountDetails(); this.GetFarmers() }
+        }
+
+        this.Signout = async () => {
+            // delete token key
+            await SecureStore.deleteItemAsync('token')
+            // delete username key
+            await SecureStore.deleteItemAsync('user_name')
+
+            alert('Your access token is no longer active. Signing you out.')
+            this.props.navigation.navigate('Login')
+        }
+
+        this.GetAccountDetails = () => {
+            this.setState({loading: true})
+            axios.post(Backend_Url + 'getAccountDetails', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                this.setState({user_details: result, loading: false})
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }
+                    else{
+                        // automatically retry
+                        this.GetAccountDetails()
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    // automatically retry
+                    this.GetAccountDetails()
+                }else{ // error occured during request setup ... no network access
+                    // automatically retry
+                    this.GetAccountDetails()
+                }
+            })
+        }
+
+        this.GetFarmers = () => {
+            this.setState({loading: true})
+            axios.post(Backend_Url + 'getFarmers', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                this.setState({farmers: result, loading: false})
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }
+                    else{
+                        // automatically retry
+                        this.GetFarmers()
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    // automatically retry
+                    this.GetFarmers()
+                }else{ // error occured during request setup ... no network access
+                    // automatically retry
+                    this.GetFarmers()
+                }
+            })
+        }
     };
 
-    componentDidMount() {
-        
+    async componentDidMount() {
+        // get user data
+        this.GetUserData()
     }
-
 
     render() {
         if (this.state.loading === true){

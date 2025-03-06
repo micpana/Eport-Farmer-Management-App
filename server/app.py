@@ -553,6 +553,50 @@ def removeFarmer():
 # *************************************************************************************************
 # *****************************************************************************************************************************
 
+# form options retrieval functions ********************************************************************************************
+# get farm types **********************************************************************************
+@app.route('/getFarmTypes', methods=['POST'])
+def getFarmTypes():
+    # check user access token's validity
+    access_token_status, user_id, user_role = check_user_access_token_validity(request, 'admin/clerk') # request data, expected user role
+    if access_token_status != 'ok':  response = make_response(access_token_status); response.status = 401; return response
+
+    # get all farm types 
+    farm_types = FarmTypes.objects.all()
+
+    # return response
+    response = make_response(farm_types.to_json()); response.status = 200; return response
+# *************************************************************************************************
+
+# get crops ***************************************************************************************
+@app.route('/getCrops', methods=['POST'])
+def getCrops():
+    # check user access token's validity
+    access_token_status, user_id, user_role = check_user_access_token_validity(request, 'admin/clerk') # request data, expected user role
+    if access_token_status != 'ok':  response = make_response(access_token_status); response.status = 401; return response
+
+    # get all crops
+    crops = Crop.objects.all()
+
+    # return response
+    response = make_response(crops.to_json()); response.status = 200; return response
+# *************************************************************************************************
+
+# get locations ***********************************************************************************
+@app.route('/getLocations', methods=['POST'])
+def getLocations():
+    # check user access token's validity
+    access_token_status, user_id, user_role = check_user_access_token_validity(request, 'admin/clerk') # request data, expected user role
+    if access_token_status != 'ok':  response = make_response(access_token_status); response.status = 401; return response
+
+    # get all locations
+    locations = Location.objects.all()
+
+    # return response
+    response = make_response(locations.to_json()); response.status = 200; return response
+# *************************************************************************************************
+# *****************************************************************************************************************************
+
 if __name__ == '__main__':
     # initialize db ***********************************************************************************************************
     init_db()

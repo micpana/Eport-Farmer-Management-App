@@ -83,22 +83,22 @@ class App extends Component {
         return(
             <NavigationContainer>
                 <StatusBar style="auto" hidden={true} />
-                <Stack.Navigator initialRouteName="Landing">
+                <Stack.Navigator initialRouteName="Dashboard">
                     <Stack.Screen name="Landing" component={Landing} options={{ headerShown: false }} />
                     <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
                     <Stack.Screen name="Dashboard" component={Dashboard} options={{ headerShown: false }} />
-                    <Stack.Screen name="AddFarmer" component={AddFarmer} options={{ headerShown: false }} />
-                    <Stack.Screen name="Farmers" component={Farmers} options={{ headerShown: false }} />
-                    <Stack.Screen name="EditFarmer" component={EditFarmer} options={{ headerShown: false }} />
-                    <Stack.Screen name="Crops" component={Crops} options={{ headerShown: false }} />
-                    <Stack.Screen name="AddCrops" component={AddCrops} options={{ headerShown: false }} />
-                    <Stack.Screen name="FarmTypes" component={FarmTypes} options={{ headerShown: false }} />
-                    <Stack.Screen name="AddFarmTypes" component={AddFarmTypes} options={{ headerShown: false }} />
-                    <Stack.Screen name="Locations" component={Locations} options={{ headerShown: false }} />
-                    <Stack.Screen name="AddLocations" component={AddLocations} options={{ headerShown: false }} />
-                    <Stack.Screen name="AddUser" component={AddUser} options={{ headerShown: false }} />
-                    <Stack.Screen name="Users" component={Users} options={{ headerShown: false }} />
-                    <Stack.Screen name="Signout" component={Signout} options={{ headerShown: false }} />
+                    <Stack.Screen name="Add Farmer" component={AddFarmer} options={{ headerShown: true }} />
+                    <Stack.Screen name="Farmers" component={Farmers} options={{ headerShown: true }} />
+                    <Stack.Screen name="Edit Farmer" component={EditFarmer} options={{ headerShown: true }} />
+                    <Stack.Screen name="Crops" component={Crops} options={{ headerShown: true }} />
+                    <Stack.Screen name="Add Crops" component={AddCrops} options={{ headerShown: true }} />
+                    <Stack.Screen name="Farm Types" component={FarmTypes} options={{ headerShown: true }} />
+                    <Stack.Screen name="Add Farm Types" component={AddFarmTypes} options={{ headerShown: true }} />
+                    <Stack.Screen name="Locations" component={Locations} options={{ headerShown: true }} />
+                    <Stack.Screen name="Add Locations" component={AddLocations} options={{ headerShown: true }} />
+                    <Stack.Screen name="Add User" component={AddUser} options={{ headerShown: true }} />
+                    <Stack.Screen name="Users" component={Users} options={{ headerShown: true }} />
+                    <Stack.Screen name="Signout" component={Signout} options={{ headerShown: true }} />
                 </Stack.Navigator>
             </NavigationContainer>
         );
