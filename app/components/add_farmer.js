@@ -9,6 +9,8 @@ import {Backend_Url} from './backend_url'
 import DropDownPicker from 'react-native-dropdown-picker';
 // secure store import
 import * as SecureStore from 'expo-secure-store';
+// SQLite
+import * as SQLite from 'expo-sqlite';
 
 class AddFarmer extends Component {
     constructor(props) {
@@ -35,6 +37,8 @@ class AddFarmer extends Component {
             screen: 1,
             total_screens: 4
         }
+
+        this.db = null; // Initialize db variable
 
         this.HandleChange = (value, state) => {
             this.setState({ [state]: value })
@@ -254,7 +258,7 @@ class AddFarmer extends Component {
                     headers: { 'Access-Token': this.state.user_access_token }
                 })
                 .then((res) => {
-                    let result = res.data
+                    let result = res.data            
                     this.setState({
                         name: '',  
                         national_id: '',   
@@ -277,16 +281,69 @@ class AddFarmer extends Component {
                         }
                     }else if (error.request){ // request was made but no response was received ... network error
                         alert('Something went wrong. Please check your connection and try again.')
-                    }else{ // error occured during request setup ... no network access
-                        alert('No internet connection found. Please check your connection and try again.')
+                    }else{ // error occured during request setup ... no network access                   
+                        // save data to local SQLite
+                        this.SaveFarmerToLocalDB(name, national_id, farm_id, farm_type, crop, location);
+                        this.setState({
+                            name: '',  
+                            national_id: '',   
+                            farm_id: '',  
+                            farm_type: '',  
+                            crop: '',  
+                            location: ''
+                        })
+                        alert('No internet connection found. Data has been saved offline and will sync automatically once you have a working connection again.')
                     }
                     this.setState({loading: false})
                 })
             }
         }
+
+        this.OpenLocalDatabase = async () => {
+            this.db = SQLite.openDatabaseAsync("farmers.db");
+        
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    `CREATE TABLE IF NOT EXISTS farmers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        name TEXT, 
+                        national_id TEXT, 
+                        farm_id TEXT, 
+                        farm_type TEXT, 
+                        crop TEXT, 
+                        location TEXT
+                    );`,
+                    [],
+                    () => {
+                        console.log("Farmers table created successfully.");
+                        
+                        // Initiate data syncing function after ensuring the table exists
+                        this.SyncLocalDBFarmersToOnlineDB();
+                    },
+                    (_, error) => console.error("Error creating table: ", error)
+                );
+            });
+        };
+
+        this.SaveFarmerToLocalDB = (name, national_id, farm_id, farm_type, crop, location) => {
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    'INSERT INTO farmers (name, national_id, farm_id, farm_type, crop, location) VALUES (?, ?, ?, ?, ?, ?);',
+                    [name, national_id, farm_id, farm_type, crop, location],
+                    (_, result) => {
+                        console.log('Farmer saved to SQLite');
+                    },
+                    (_, error) => {
+                        console.log('Error saving farmer to SQLite: ', error);
+                    }
+                );
+            });
+        };
     };
 
     async componentDidMount() {
+        // offline db
+        this.OpenLocalDatabase()
         // get user data
         this.GetUserData()
     }

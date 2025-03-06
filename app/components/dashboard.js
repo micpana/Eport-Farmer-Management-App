@@ -7,6 +7,8 @@ import axios from 'axios';
 import {Backend_Url} from './backend_url'
 // secure store import
 import * as SecureStore from 'expo-secure-store';
+// SQLite
+import * as SQLite from 'expo-sqlite';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -14,9 +16,12 @@ class Dashboard extends Component {
         this.state = {
             loading: true,
             user_access_token: '',
-            user_name: 'Michael Panashe Mudimbu',
-            user_details: {role: 'admin'}
+            user_name: '',
+            user_details: {role: ''},
+            data_syncing_in_progress: false
         }
+
+        this.db = null; // Initialize db variable
 
         this.HandleChange = (value, state) => {
             this.setState({ [state]: value })
@@ -78,9 +83,95 @@ class Dashboard extends Component {
                 }
             })
         }
+        
+        this.OpenLocalDatabase = async () => {
+            this.db = SQLite.openDatabaseAsync("farmers.db");
+        
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    `CREATE TABLE IF NOT EXISTS farmers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        name TEXT, 
+                        national_id TEXT, 
+                        farm_id TEXT, 
+                        farm_type TEXT, 
+                        crop TEXT, 
+                        location TEXT
+                    );`,
+                    [],
+                    () => {
+                        console.log("Farmers table created successfully.");
+                        
+                        // Initiate data syncing function after ensuring the table exists
+                        this.SyncLocalDBFarmersToOnlineDB();
+                    },
+                    (_, error) => console.error("Error creating table: ", error)
+                );
+            });
+        };
+
+        this.SyncLocalDBFarmersToOnlineDB = () => {
+            if (!this.db) {
+                alert("Database not initialized");
+                return;
+            }
+        
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    "SELECT * FROM farmers;",
+                    [],
+                    (_, { rows }) => {
+                        let farmers = rows._array;
+        
+                        if (farmers.length === 0) {
+                            alert("No farmers to sync.");
+                            return;
+                        }
+        
+                        alert(`Syncing ${farmers.length} farmers to the online database...`);
+        
+                        farmers.forEach((farmer) => {
+                            let data = new FormData();
+                            data.append("name", farmer.name);
+                            data.append("national_id", farmer.national_id);
+                            data.append("farm_id", farmer.farm_id);
+                            data.append("farm_type", farmer.farm_type);
+                            data.append("crop", farmer.crop);
+                            data.append("location", farmer.location);
+        
+                            axios.post(Backend_Url + "addFarmer", data, {
+                                headers: { "Access-Token": this.state.user_access_token }
+                            })
+                            .then(() => {
+                                alert(`Farmer ${farmer.name} synced successfully.`);
+        
+                                // Delete farmer from local DB after successful sync
+                                this.db.transaction(tx => {
+                                    tx.executeSql(
+                                        "DELETE FROM farmers WHERE id = ?;",
+                                        [farmer.id],
+                                        () => alert(`Farmer ${farmer.name} removed from local DB.`),
+                                        (error) => alert("Error deleting farmer: " + error)
+                                    );
+                                });
+                            })
+                            .catch(() => {
+                                alert(`Sync error for farmer: ${farmer.name}`);
+                            });
+                        });
+                    },
+                    (_, error) => alert("Error retrieving farmers: " + error)
+                );
+            });
+
+            // run syncing function after every 60 seconds
+            const timeoutId = setTimeout(() => {this.SyncLocalDBFarmersToOnlineDB()}, 60000);
+        };
     };
 
     async componentDidMount() {
+        // offline db
+        this.OpenLocalDatabase()
         // get user data
         this.GetUserData()
     }
@@ -213,6 +304,13 @@ class Dashboard extends Component {
                                 : <View></View>
                             }
                         </View>
+                        {
+                            this.state.data_syncing_in_progress === true
+                            ? <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center', marginTop: 80}}>
+                                Data sync in progress ...
+                            </Text>
+                            : <View></View>
+                        }
                     </View>
                 </ScrollView>
             </View>
