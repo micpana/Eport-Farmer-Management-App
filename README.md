@@ -1,24 +1,21 @@
 Farmers App Project
 
 Overview
-
 The Farmers App is a mobile application built to manage farmer data, with offline capabilities and data synchronization with a central server when an internet connection is available. The backend is powered by a Python Flask API, and the frontend is built with React Native using Expo. The application is designed to facilitate farmer data collection and syncing, with a focus on reliable performance both online and offline.
 
 
 Technology Stack
-
-Backend: Python 3.12.2, Flask
-Frontend: React Native (Expo ~52.0.31)
-Database: MongoDB
-Local Storage: SQLite (for offline data storage)
+- Backend: Python 3.12.2, Flask
+- Frontend: React Native (Expo ~52.0.31)
+- Database: MongoDB
+- Local Storage: SQLite (for offline data storage)
 
 
 Features
-
-Sign-in: The application requires an internet connection for the initial sign-in. Once signed in, users can continue using the app offline.
-Farmer Data Collection: Users can add farmer information such as Name, National ID, Farm ID, Farm Type, Crop, and Location, both online and offline.
-Offline Support: Data is stored locally in SQLite when no internet connection is available. Once the connection is restored, the app syncs the locally saved data with the backend server.
-API: The backend exposes RESTful API endpoints for managing farmer data, which can be accessed by various user roles (Clerk and Admin). Detailed API documentation is available in the "API Documentation.pdf" file.
+- Sign-in: The application requires an internet connection for the initial sign-in. Once signed in, users can continue using the app offline.
+- Farmer Data Collection: Users can add farmer information such as Name, National ID, Farm ID, Farm Type, Crop, and Location, both online and offline.
+- Offline Support: Data is stored locally in SQLite when no internet connection is available. Once the connection is restored, the app syncs the locally saved data with the backend server.
+- API: The backend exposes RESTful API endpoints for managing farmer data, which can be accessed by various user roles (Clerk and Admin). Detailed API documentation is available in the "API Documentation.pdf" file.
 
 
 
