@@ -14,7 +14,7 @@ class EditFarmer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
+            loading: false,
             user_access_token: '',
             user_name: '',
         }
@@ -60,7 +60,6 @@ class EditFarmer extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...

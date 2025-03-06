@@ -13,7 +13,7 @@ class Farmers extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
+            loading: true,
             user_access_token: '',
             user_name: '',
             user_details: {},
@@ -108,6 +108,55 @@ class Farmers extends Component {
                 }
             })
         }
+
+        this.HandleDelete = (farmer_id) => {
+            Alert.alert(
+                'Are you sure?', // Title
+                'Do you really want to delete this item?', // Message
+                [
+                    {
+                    text: 'Cancel',
+                    onPress: () => console.log('Deletion cancelled'),
+                    style: 'cancel',
+                    },
+                    {
+                    text: 'Delete',
+                    onPress: () => this.RemoveFarmer(farmer_id),
+                    style: 'destructive',
+                    },
+                ],
+                { cancelable: true }
+            );
+        };
+
+        this.RemoveFarmer = (farmer_id) => {
+            this.setState({loading: true})
+    
+            var data = new FormData() 
+            data.append('farmer_id', farmer_id)
+
+            axios.post(Backend_Url + 'removeFarmer', data, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                this.GetFarmers()
+                alert('Farmer removed successfully')
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }else{
+                        alert('(Error '+status_code.toString()+': '+result.toString()+')')
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    alert('Something went wrong. Please check your connection and try again.')
+                }else{ // error occured during request setup ... no network access
+                    alert('No internet connection found. Please check your connection and try again.')
+                }
+            })
+        }
     };
 
     async componentDidMount() {
@@ -118,7 +167,6 @@ class Farmers extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
@@ -127,9 +175,80 @@ class Farmers extends Component {
             </View>
         }
 
+        if (this.state.farmers.length === 0){
+            return<View style={styles.container}>
+                <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
+                        No farmers found.
+                    </Text>
+                </View>
+            </View>
+        }
+
+        var farmers_map = this.state.farmers.map((item, index) => {
+            return <View key={'Farmer_'+index.toString()}
+                style={{
+                    borderColor: 'silver', borderWidth: 1, borderRadius: 10, marginBottom: 20
+                }}
+            >
+                <View style={{margin: 10}}>
+                    <Text style={{color: '#40744d', fontWeight: 'bold', fontSize: 15, textAlign: 'left'}}>
+                        {item.name}
+                    </Text>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <Text style={{color: '#40744d', fontSize: 12, textAlign: 'left'}}>
+                                National ID: {item.national_id}
+                            </Text>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <Text style={{color: '#40744d', fontSize: 12, textAlign: 'left'}}>
+                                Farm ID: {item.farm_id}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <Text style={{color: '#40744d', fontSize: 12, textAlign: 'left'}}>
+                                Farm Type: {item.farm_type}
+                            </Text>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <Text style={{color: '#40744d', fontSize: 12, textAlign: 'left'}}>
+                                Crop: {item.crop}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <Text style={{color: '#40744d', fontSize: 12, textAlign: 'left'}}>
+                                Location: {item.location}
+                            </Text>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <TouchableOpacity
+                                key='RemoveFarmer'
+                                onPress={() => this.HandleDelete(item._id.$oid)}
+                                style={{
+                                    backgroundColor: 'inherit'
+                                }}
+                            >
+                                <Feather name='trash-2' color={'red'} size={20} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        })
+
         return<View style={styles.container}>
             <ScrollView style={styles.scroll_view}>
-
+                <View style={{
+                        marginLeft: 20, marginRight: 20, marginTop: 50
+                    }}
+                >
+                    {farmers_map}
+                </View>
             </ScrollView>
         </View>
     }

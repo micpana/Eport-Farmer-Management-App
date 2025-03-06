@@ -15,7 +15,7 @@ class AddFarmTypes extends Component {
             loading: false,
             user_access_token: '',
             user_name: '',
-
+            type: ''
         }
 
         this.HandleChange = (value, state) => {
@@ -49,6 +49,47 @@ class AddFarmTypes extends Component {
             alert('Your access token is no longer active. Signing you out.')
             this.props.navigation.navigate('Login')
         }
+
+        this.AddFarmType = () => {
+            var type = this.state.type
+
+            if (type === ''){
+                alert("Farm type is required")
+            }else{
+                this.setState({loading: true})
+
+                var data = new FormData() 
+                data.append('type', type)
+                
+                axios.post(Backend_Url + 'addFarmType', data, { 
+                    headers: { 'Access-Token': this.state.user_access_token }
+                })
+                .then((res) => {
+                    let result = res.data
+                    this.setState({
+                        type: '',
+                        loading: false
+                    })
+                    alert('Farm Type added successfully.')
+                }).catch((error) => {
+                    console.log(error)
+                    if (error.response){ // server responded with a non-2xx status code
+                        let status_code = error.response.status
+                        let result = error.response.data
+                        if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                            this.Signout()
+                        }else{
+                            alert('(Error '+status_code.toString()+': '+result.toString()+')')
+                        }
+                    }else if (error.request){ // request was made but no response was received ... network error
+                        alert('Something went wrong. Please check your connection and try again.')
+                    }else{ // error occured during request setup ... no network access
+                        alert('No internet connection found. Please check your connection and try again.')
+                    }
+                    this.setState({loading: false})
+                })
+            }
+        }
     };
 
     async componentDidMount() {
@@ -59,7 +100,6 @@ class AddFarmTypes extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
@@ -70,7 +110,35 @@ class AddFarmTypes extends Component {
         
         return<View style={styles.container}>
             <ScrollView style={styles.scroll_view}>
-                
+                <View style={{marginLeft: 20, marginRight: 20}}>
+                    <TextInput
+                        // autoFocus={true}
+                        onChangeText={(text) => this.HandleChange(text, "type")}
+                        placeholder="Farm type"
+                        placeholderTextColor='#40744d'
+                        value={this.state.type}
+                        style={{
+                            alignSelf: 'center', width: '100%', marginTop: 80, borderWidth: 0, borderColor: 'transparent',
+                            backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                        }}
+                    />
+                    <TouchableOpacity
+                        key='Add-Farm-Type'
+                        onPress={() => this.AddFarmType()}
+                        style={{
+                            backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                            borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                        }}
+                    >
+                        <Text 
+                            style={{
+                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                            }}
+                        >
+                            Add
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </View>
     }

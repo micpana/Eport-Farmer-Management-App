@@ -178,7 +178,7 @@ class AddFarmer extends Component {
 
         this.setValue1 = (callback) => {
             this.setState(state => ({
-                crops: callback(state.crops)
+                crop: callback(state.crop)
             }));
         }
 
@@ -299,7 +299,6 @@ class AddFarmer extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...

@@ -12,7 +12,7 @@ class Dashboard extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
+            loading: true,
             user_access_token: '',
             user_name: 'Michael Panashe Mudimbu',
             user_details: {role: 'admin'}
@@ -89,7 +89,6 @@ class Dashboard extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
@@ -120,22 +119,30 @@ class Dashboard extends Component {
                                 backgroundColor: '#ffffff', width: '100%', height: 100, borderRadius: 10, marginTop: 40
                             }}
                         >
-                            <View style={{margin: 20}}>
-                                <Text
-                                    style={{
-                                        textAlign: 'left'
-                                    }}
-                                >
-                                    {this.state.user_name}
-                                </Text>
-                                <Text
-                                    style={{
-                                        textAlign: 'left', marginTop: 10, color: 'grey'
-                                    }}
-                                >
-                                    {this.state.user_details.role}
-                                </Text>
+                            <TouchableOpacity
+                                key='Signout'
+                                onPress={() => this.props.navigation.navigate('Signout')}
+                                style={{
+                                    backgroundColor: 'inherit'
+                                }}
+                            >
+                                <View style={{margin: 20}}>
+                                    <Text
+                                        style={{
+                                            textAlign: 'left'
+                                        }}
+                                    >
+                                        {this.state.user_name}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            textAlign: 'left', marginTop: 10, color: 'grey'
+                                        }}
+                                    >
+                                        {this.state.user_details.role}
+                                    </Text>
                             </View>
+                            </TouchableOpacity>
                         </View>
                         <View style={{flexDirection: 'row', marginTop: 50}}>
                             <View style={{flexDirection: 'column', backgroundColor: '#ffffff', width: '30%', height: 80}}>
@@ -180,6 +187,31 @@ class Dashboard extends Component {
                                     </Text>
                                 </TouchableOpacity>
                             </View>
+                            {
+                                this.state.user_details.role === 'admin'
+                                ? <View style={{flexDirection: 'column', backgroundColor: '#ffffff', width: '30%', height: 80, marginLeft: '4%'}}>
+                                    <TouchableOpacity
+                                        key='Dashboard-Add-User'
+                                        onPress={() => this.props.navigation.navigate('Add User')}
+                                        style={{
+                                            backgroundColor: 'inherit', marginLeft: 'auto', marginRight: 'auto'
+                                        }}
+                                    >
+                                        <Feather name='users' color={'#40744d'} size={25}
+                                            style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 10}}
+                                        />
+                                        <Text 
+                                            style={{
+                                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', color: '#40744d', fontSize: 13,
+                                                marginTop: 5
+                                            }}
+                                        >
+                                            Add User
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                : <View></View>
+                            }
                         </View>
                     </View>
                 </ScrollView>

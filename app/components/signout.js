@@ -87,7 +87,6 @@ class Signout extends Component {
     render() {
         if (this.state.loading === true){
             return<View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
@@ -97,7 +96,6 @@ class Signout extends Component {
         }
 
         return<View style={styles.container}>
-            <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
             <ScrollView style={styles.scroll_view}>
                 <Text style={{color: '#40744d', fontWeight: 'bold', fontSize: 18, marginTop: 180, textAlign: 'center'}}>
                     {this.state.user_name}

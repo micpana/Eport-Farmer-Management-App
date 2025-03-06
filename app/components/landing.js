@@ -28,7 +28,6 @@ class Landing extends Component {
     render() {
         if (this.state.loading === true){
             return <View style={styles.container}>
-                <View style={{borderTopColor: 'silver', borderTopWidth: 1}}></View>
                 <View style={{marginTop: 'auto', marginBottom: 'auto', marginLeft: 20, marginRight: 20}}>
                     <Text style={{color: '#5c708b', fontWeight: 'bold', textAlign: 'center'}}>
                         Loading ...
