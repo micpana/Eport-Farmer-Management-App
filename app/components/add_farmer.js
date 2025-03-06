@@ -14,7 +14,7 @@ class AddFarmer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false,
+            loading: true,
             user_access_token: '',
             user_name: '',
             name: '',  
@@ -56,6 +56,7 @@ class AddFarmer extends Component {
             }else{ should_reload = true }
 
             if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserData()}, 1000) }
+            else{ this.GetCrops(); this.GetFarmTypes(); this.GetLocations() }
         }
 
         this.Signout = async () => {
@@ -73,12 +74,10 @@ class AddFarmer extends Component {
             axios.post(Backend_Url + 'getCrops', null, { headers: { 'Access-Token': this.state.user_access_token }  })
             .then((res) => {
                 let result = res.data
-                let crops = this.state.crops
-                result.map((item, index) => {
-                    crops.append(
-                        {label: item.name, value: item.name}
-                    )
-                })
+                var crops = this.state.crops
+                result.forEach((item) => {
+                    crops = crops.concat({ label: item.name, value: item.name });
+                });
                 this.setState({crops: crops, loading: false})
             }).catch((error) => {
                 console.log(error)
@@ -107,12 +106,10 @@ class AddFarmer extends Component {
             axios.post(Backend_Url + 'getFarmTypes', null, { headers: { 'Access-Token': this.state.user_access_token }  })
             .then((res) => {
                 let result = res.data
-                let farm_types = this.state.farm_types
-                result.map((item, index) => {
-                    farm_types.append(
-                        {label: item.type, value: item.type}
-                    )
-                })
+                var farm_types = this.state.farm_types
+                result.forEach((item) => {
+                    farm_types = farm_types.concat({ label: item.type, value: item.type });
+                });
                 this.setState({farm_types: farm_types, loading: false})
             }).catch((error) => {
                 console.log(error)
@@ -141,12 +138,10 @@ class AddFarmer extends Component {
             axios.post(Backend_Url + 'getLocations', null, { headers: { 'Access-Token': this.state.user_access_token }  })
             .then((res) => {
                 let result = res.data
-                let locations = this.state.locations
-                result.map((item, index) => {
-                    locations.append(
-                        {label: item.name, value: item.name}
-                    )
-                })
+                var locations = this.state.locations
+                result.forEach((item) => {
+                    locations = locations.concat({ label: item.name, value: item.name });
+                });
                 this.setState({locations: locations, loading: false})
             }).catch((error) => {
                 console.log(error)

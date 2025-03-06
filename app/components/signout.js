@@ -26,7 +26,7 @@ class Signout extends Component {
             // delete username key
             await SecureStore.deleteItemAsync('user_name')
             // redirect to login page
-            this.props.navigation.navigate('signin')
+            this.props.navigation.navigate('Landing')
         }
 
         this.Signout_ = () => {

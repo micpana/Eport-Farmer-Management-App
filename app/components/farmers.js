@@ -160,6 +160,11 @@ class Farmers extends Component {
     };
 
     async componentDidMount() {
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            // get user data
+            this.GetUserData();
+        });
+        
         // get user data
         this.GetUserData()
     }

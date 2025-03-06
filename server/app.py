@@ -212,8 +212,8 @@ def addAccount():
     # encrypt submitted password
     password = encrypt_password(password)
     
-    # register new user and retrieve account id
-    user_details = Admins(
+    # register new user and retrieve account id 
+    user_details = Users(
         firstname = firstname,
         lastname = lastname,
         email = email,
@@ -260,7 +260,7 @@ def addCrop():
 
     # input field validation **************************************************
     # name
-    try: name = request.form['Name'] 
+    try: name = request.form['name'] 
     except: response = make_response('Name field required'); response.status = 400; return response
     if name == '' or name == None: response = make_response('Name cannot be empty'); response.status = 400; return response
     if isinstance(name, str) == False: response = make_response('Name data type is invalid'); response.status = 400; return response
@@ -308,7 +308,7 @@ def addFarmType():
 
     # input field validation **************************************************
     # type
-    try: type = request.form['Type'] 
+    try: type = request.form['type'] 
     except: response = make_response('Type field required'); response.status = 400; return response
     if type == '' or type == None: response = make_response('Type cannot be empty'); response.status = 400; return response
     if isinstance(type, str) == False: response = make_response('Type data type is invalid'); response.status = 400; return response
@@ -408,7 +408,7 @@ def addFarmer():
     # name
     try: name = request.form['name'] 
     except: response = make_response('Name field required'); response.status = 400; return response
-    if name == '' or firstname == None: response = make_response('Name cannot be empty'); response.status = 400; return response
+    if name == '' or name == None: response = make_response('Name cannot be empty'); response.status = 400; return response
     if isinstance(name, str) == False: response = make_response('Name data type is invalid'); response.status = 400; return response
     # national ID
     try: national_id = request.form['national_id'] 

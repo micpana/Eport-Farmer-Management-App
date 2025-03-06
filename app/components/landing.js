@@ -18,12 +18,44 @@ class Landing extends Component {
         this.HandleChange = (value, state) => {
             this.setState({ [state]: value })
         }
+                
+        this.GetUserData = async () => {
+            var should_reload = false
+
+            // get access token
+            let token = await SecureStore.getItemAsync('token');
+            if (token){
+                this.setState({user_access_token: token})
+            }else{ should_reload = true }
+
+            // get username
+            let user_name = await SecureStore.getItemAsync('user_name');
+            if (user_name){
+                this.setState({user_name: user_name})
+            }else{ should_reload = true }
+
+            if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserData()}, 1000) }
+            else{ 
+                this.props.navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Dashboard' }],
+                    })
+                );
+                this.props.navigation.navigate('Dashboard') 
+            }
+        }
     };
 
-    componentDidMount() {
+    async componentDidMount() {
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            // get user data
+            this.GetUserData();
+        });
         
+        // get user data
+        this.GetUserData()
     }
-
 
     render() {
         if (this.state.loading === true){
