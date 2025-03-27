@@ -1,3 +1,0 @@
-*.apk filter=lfs diff=lfs merge=lfs -text
-Farmers[[:space:]]App.zip filter=lfs diff=lfs merge=lfs -text
-Farmers[[:space:]]App.apk !text !filter !merge !diff
