@@ -1,6 +1,6 @@
 Farmers App Project
 
-APK: Farmers App.apk
+APK (102 MB, exceeds github 100 MB limit): contained within "Farmers App.zip" / https://drive.google.com/file/d/162BKmh-i38rXjk0bOzFI8kDc4a4RO9Zh/view?usp=sharing
 
 Overview
 The Farmers App is a mobile application built to manage farmer data, with offline capabilities and data synchronization with a central server when an internet connection is available. The backend is powered by a Python Flask API, and the frontend is built with React Native using Expo. The application is designed to facilitate farmer data collection and syncing, with a focus on reliable performance both online and offline.
