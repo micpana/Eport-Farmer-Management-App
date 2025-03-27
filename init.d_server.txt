@@ -1,0 +1,77 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          farm5
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Nginx and Flask app for farm5 and sandbox at boot time
+# Description:       Enable service provided by daemon for farm5 and sandbox instances.
+### END INIT INFO
+
+# Define your app directories and Gunicorn commands
+FARM5_DIR="/home/michael/Eport-Farmer-Management-App/server"
+SANDBOX_DIR="/home/michael/Sandbox-Eport-Farmer-Management-App/server"
+GUNICORN_CMD="python3.12 -m gunicorn -w 4 -b 0.0.0.0:8000 app:app > $LOG_DIR/farm5.log 2>&1 &"
+GUNICORN_CMD_SANDBOX="python3.12 -m gunicorn -w 4 -b 0.0.0.0:8001 app:app > $LOG_DIR/sandbox.log 2>&1 &"
+LOG_DIR="/home/michael/server_logs/eport"  # Directory to store logs
+VENV_DIR="venv/bin/activate"  # venv directory
+
+# Ensure log directory exists
+mkdir -p $LOG_DIR
+
+case "$1" in
+  start)
+    echo "Starting Nginx..."
+    service nginx start
+    echo "Starting Flask app for farm5..."
+    cd $FARM5_DIR
+    source $VENV_DIR
+    python3.12 -m gunicorn -w 4 -b 0.0.0.0:8000 app:app > $LOG_DIR/farm5.log 2>&1 &
+
+    echo "Starting Flask app for sandbox..."
+    cd $SANDBOX_DIR
+    source $VENV_DIR
+    python3.12 -m gunicorn -w 4 -b 0.0.0.0:8001 app:app > $LOG_DIR/sandbox.log 2>&1 &
+
+    echo "All instances started. Logs can be found in $LOG_DIR"
+    ;;
+  stop)
+    echo "Stopping Nginx..."
+    service nginx stop
+    echo "Stopping Flask app for farm5..."
+    pkill -f "gunicorn"
+
+    echo "Stopping Flask app for sandbox..."
+    pkill -f "gunicorn"
+    ;;
+  restart)
+    echo "Restarting Nginx..."
+    service nginx restart
+    echo "Restarting Flask app for farm5..."
+    pkill -f "gunicorn"
+    cd $FARM5_DIR
+    source $VENV_DIR
+    python3.12 -m gunicorn -w 4 -b 0.0.0.0:8000 app:app > $LOG_DIR/farm5.log 2>&1 &
+
+    echo "Restarting Flask app for sandbox..."
+    pkill -f "gunicorn"
+    cd $SANDBOX_DIR
+    source $VENV_DIR
+    python3.12 -m gunicorn -w 4 -b 0.0.0.0:8001 app:app > $LOG_DIR/sandbox.log 2>&1 &
+    ;;
+  status)
+    service nginx status
+    echo "Checking Flask app status for farm5..."
+    pgrep -fl gunicorn | grep "$FARM5_DIR"
+    echo "Checking Flask app status for sandbox..."
+    pgrep -fl gunicorn | grep "$SANDBOX_DIR"
+    echo "Check logs: $LOG_DIR/farm5.log & $LOG_DIR/sandbox.log"
+    ;;
+  *)
+    echo "Usage: /etc/init.d/server {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
+
+exit 0
