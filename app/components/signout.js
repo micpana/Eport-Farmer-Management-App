@@ -13,7 +13,8 @@ class Signout extends Component {
         this.state = {
             loading: false,
             user_access_token: '',
-            user_name: ''
+            user_name: '',
+            user_role: ''
         }
 
         this.HandleChange = (value, state) => {
@@ -25,6 +26,8 @@ class Signout extends Component {
             await SecureStore.deleteItemAsync('token')
             // delete username key
             await SecureStore.deleteItemAsync('user_name')
+            // delete user role key
+            await SecureStore.deleteItemAsync('user_role')
             // redirect to login page
             this.props.navigation.navigate('Landing')
         }
@@ -72,6 +75,12 @@ class Signout extends Component {
             let user_name = await SecureStore.getItemAsync('user_name');
             if (user_name){
               this.setState({user_name: user_name})
+            }else{ should_reload = true }
+            
+            // get user role
+            let user_role = await SecureStore.getItemAsync('user_role');
+            if (user_role){
+                this.setState({user_role: user_role})
             }else{ should_reload = true }
 
             if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserDetails()}, 1000) }

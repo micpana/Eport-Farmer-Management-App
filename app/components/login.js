@@ -71,6 +71,8 @@ class Login extends Component {
                     await SecureStore.setItemAsync('token', result.token);
                     // store username
                     await SecureStore.setItemAsync('user_name', result.username);
+                    // store user role
+                    await SecureStore.setItemAsync('user_role', result.role);
                     
                     alert('Signin successful.')
                     this.setState({stage: 'email', email: '', password: '', loading: false})

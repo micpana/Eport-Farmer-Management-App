@@ -230,7 +230,18 @@ class Farmers extends Component {
                                 Location: {item.location}
                             </Text>
                         </View>
-                        <View style={{flexDirection: 'column', width: '50%'}}>
+                        <View style={{flexDirection: 'column', width: '25%'}}>
+                            <TouchableOpacity
+                                key='EditFarmer'
+                                onPress={() => this.props.navigation.navigate('Edit Farmer', {farmer: item})}
+                                style={{
+                                    backgroundColor: 'inherit'
+                                }}
+                            >
+                                <Feather name='edit' color={'red'} size={20} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '25%'}}>
                             <TouchableOpacity
                                 key='RemoveFarmer'
                                 onPress={() => this.HandleDelete(item._id.$oid)}

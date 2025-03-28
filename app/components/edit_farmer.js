@@ -9,6 +9,8 @@ import {Backend_Url} from './backend_url'
 import DropDownPicker from 'react-native-dropdown-picker';
 // secure store import
 import * as SecureStore from 'expo-secure-store';
+// SQLite
+import * as SQLite from 'expo-sqlite';
 
 class EditFarmer extends Component {
     constructor(props) {
@@ -17,7 +19,27 @@ class EditFarmer extends Component {
             loading: false,
             user_access_token: '',
             user_name: '',
+            farmer_id: '',
+            name: '',  
+            national_id: '',   
+            farm_id: '',  
+            farm_type: '',  
+            crop: '',  
+            location: '',
+            crops: [
+                {label: 'Choose a crop', value: ''}
+            ],
+            farm_types: [
+                {label: 'Choose a farm type', value: ''}
+            ],
+            locations: [
+                {label: 'Choose a location', value: ''}
+            ],
+            screen: 1,
+            total_screens: 4
         }
+
+        this.db = null; // Initialize db variable
 
         this.HandleChange = (value, state) => {
             this.setState({ [state]: value })
@@ -39,6 +61,7 @@ class EditFarmer extends Component {
             }else{ should_reload = true }
 
             if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserData()}, 1000) }
+            else{ this.GetCrops(); this.GetFarmTypes(); this.GetLocations() }
         }
 
         this.Signout = async () => {
@@ -50,11 +73,321 @@ class EditFarmer extends Component {
             alert('Your access token is no longer active. Signing you out.')
             this.props.navigation.navigate('Login')
         }
+
+        this.GetCrops = () => {
+            this.setState({loading: true})
+            axios.post(Backend_Url + 'getCrops', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                var crops = this.state.crops
+                result.forEach((item) => {
+                    crops = crops.concat({ label: item.name, value: item.name });
+                });
+                this.setState({crops: crops, loading: false})
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }
+                    else{
+                        // automatically retry
+                        this.GetCrops()
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    // automatically retry
+                    this.GetCrops()
+                }else{ // error occured during request setup ... no network access
+                    // automatically retry
+                    this.GetCrops()
+                }
+            })
+        }
+
+        this.GetFarmTypes = () => {
+            this.setState({loading: true})
+            axios.post(Backend_Url + 'getFarmTypes', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                var farm_types = this.state.farm_types
+                result.forEach((item) => {
+                    farm_types = farm_types.concat({ label: item.type, value: item.type });
+                });
+                this.setState({farm_types: farm_types, loading: false})
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }
+                    else{
+                        // automatically retry
+                        this.GetFarmTypes()
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    // automatically retry
+                    this.GetFarmTypes()
+                }else{ // error occured during request setup ... no network access
+                    // automatically retry
+                    this.GetFarmTypes()
+                }
+            })
+        }
+
+        this.GetLocations = () => {
+            this.setState({loading: true})
+            axios.post(Backend_Url + 'getLocations', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            .then((res) => {
+                let result = res.data
+                var locations = this.state.locations
+                result.forEach((item) => {
+                    locations = locations.concat({ label: item.name, value: item.name });
+                });
+                this.setState({locations: locations, loading: false})
+            }).catch((error) => {
+                console.log(error)
+                if (error.response){ // server responded with a non-2xx status code
+                    let status_code = error.response.status
+                    let result = error.response.data
+                    if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                        this.Signout()
+                    }
+                    else{
+                        // automatically retry
+                        this.GetLocations()
+                    }
+                }else if (error.request){ // request was made but no response was received ... network error
+                    // automatically retry
+                    this.GetLocations()
+                }else{ // error occured during request setup ... no network access
+                    // automatically retry
+                    this.GetLocations()
+                }
+            })
+        }
+
+        this.setOpen1 = (open) => {
+            this.setState({
+                dropdown1_open: open
+            });
+        }
+
+        this.setValue1 = (callback) => {
+            this.setState(state => ({
+                crop: callback(state.crop)
+            }));
+        }
+
+        this.setItems1 = (callback) => {
+            this.setState(state => ({
+                crops: callback(state.crops)
+            }));
+        }
+
+        this.setOpen2 = (open) => {
+            this.setState({
+                dropdown2_open: open
+            });
+        }
+
+        this.setValue2 = (callback) => {
+            this.setState(state => ({
+                farm_type: callback(state.farm_type)
+            }));
+        }
+
+        this.setItems2 = (callback) => {
+            this.setState(state => ({
+                farm_types: callback(state.farm_types)
+            }));
+        }
+
+        this.setOpen3 = (open) => {
+            this.setState({
+                dropdown3_open: open
+            });
+        }
+
+        this.setValue3 = (callback) => {
+            this.setState(state => ({
+                location: callback(state.location)
+            }));
+        }
+
+        this.setItems3 = (callback) => {
+            this.setState(state => ({
+                locations: callback(state.locations)
+            }));
+        }
+
+        this.EditFarmer = () => {
+            var farmer_id = this.state.farmer_id
+            var name = this.state.name
+            var national_id = this.state.national_id
+            var farm_id = this.state.farm_id
+            var farm_type = this.state.farm_type
+            var crop = this.state.crop
+            var location = this.state.location
+
+            if (farmer_id === '') {
+                alert("Farmer's ID is required")
+            }else if (name === ''){
+                alert("Farmer's name is required")
+            }else if(national_id === ''){
+                alert("National ID is required")
+            }else if(farm_id === ''){
+                alert("Farm ID is required")
+            }else if(farm_type === ''){
+                alert("Farm Type is required")
+            }else if(crop === ''){
+                alert("Crop is required")
+            }else if(location === ''){
+                alert("Location is required")
+            }else{
+                this.setState({loading: true})
+
+                var data = new FormData() 
+                data.append('farmer_id', farmer_id)
+                data.append('name', name)
+                data.append('national_id', national_id)
+                data.append('farm_id', farm_id)
+                data.append('farm_type', farm_type)
+                data.append('crop', crop)
+                data.append('location', location)
+                
+                axios.post(Backend_Url + 'editFarmer', data, { 
+                    headers: { 'Access-Token': this.state.user_access_token }
+                })
+                .then((res) => {
+                    let result = res.data            
+                    alert('Farmer edited successfully.')
+                    this.setState({loading: false})
+                    this.props.navigation.navigate('Farmers')
+                }).catch((error) => {
+                    console.log(error)
+                    if (error.response){ // server responded with a non-2xx status code
+                        let status_code = error.response.status
+                        let result = error.response.data
+                        if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
+                            this.Signout()
+                        }else{
+                            alert('(Error '+status_code.toString()+': '+result.toString()+')')
+                        }
+                    }else if (error.request){ // request was made but no response was received ... network error
+                        alert('Something went wrong. Please check your connection and try again.')
+                    }else{ // error occured during request setup ... no network access                   
+                        // check if the farmer already exists in the local database
+                        this.CheckFarmerInLocalDB(national_id, (exists) => {
+                            if (exists) {
+                                // update existing farmer data
+                                this.UpdateFarmerInLocalDB(name, national_id, farm_id, farm_type, crop, location);
+
+                                alert('No internet connection found. Data has been saved offline and will sync automatically once you have a working connection again.');
+                            } else {
+                                // save new farmer data
+                                this.SaveFarmerToLocalDB(name, national_id, farm_id, farm_type, crop, location);
+
+                                alert('No internet connection found. Data has been saved offline and will sync automatically once you have a working connection again.');
+                            }
+                        });
+                    }
+                    this.setState({loading: false})
+                })
+            }
+        }
+
+        this.CheckFarmerInLocalDB = (national_id, callback) => {
+            db.transaction(tx => {
+                tx.executeSql(
+                    'SELECT * FROM farmers WHERE national_id = ?',
+                    [national_id],
+                    (_, { rows }) => {
+                        callback(rows.length > 0);
+                    },
+                    error => {
+                        console.error('Error checking farmer:', error);
+                        callback(false);
+                    }
+                );
+            });
+        }        
+
+        this.UpdateFarmerInLocalDB = (name, national_id, farm_id, farm_type, crop, location) => {
+            db.transaction(tx => {
+                tx.executeSql(
+                    'UPDATE farmers SET name = ?, farm_id = ?, farm_type = ?, crop = ?, location = ? WHERE national_id = ?',
+                    [name, farm_id, farm_type, crop, location, national_id],
+                    () => console.log('Farmer data updated successfully'),
+                    error => console.error('Error updating farmer:', error)
+                );
+            });
+        }        
+
+        this.OpenLocalDatabase = async () => {
+            this.db = SQLite.openDatabaseAsync("farmers.db");
+        
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    `CREATE TABLE IF NOT EXISTS farmers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                        name TEXT, 
+                        national_id TEXT, 
+                        farm_id TEXT, 
+                        farm_type TEXT, 
+                        crop TEXT, 
+                        location TEXT
+                    );`,
+                    [],
+                    () => {
+                        console.log("Farmers table created successfully.");
+                        
+                        // Initiate data syncing function after ensuring the table exists
+                        this.SyncLocalDBFarmersToOnlineDB();
+                    },
+                    (_, error) => console.error("Error creating table: ", error)
+                );
+            });
+        };
+
+        this.SaveFarmerToLocalDB = (name, national_id, farm_id, farm_type, crop, location) => {
+            this.db.transaction(tx => {
+                tx.executeSql(
+                    'INSERT INTO farmers (name, national_id, farm_id, farm_type, crop, location) VALUES (?, ?, ?, ?, ?, ?);',
+                    [name, national_id, farm_id, farm_type, crop, location],
+                    (_, result) => {
+                        console.log('Farmer saved to SQLite');
+                    },
+                    (_, error) => {
+                        console.log('Error saving farmer to SQLite: ', error);
+                    }
+                );
+            });
+        };
     };
 
     async componentDidMount() {
+        // offline db
+        this.OpenLocalDatabase()
         // get user data
         this.GetUserData()
+        // get farmer data
+        var { farmer } = this.props.route.params;
+        if (farmer != null){
+            this.setState({
+                farmer_id: farmer._id.$oid,
+                name: farmer.name,  
+                national_id: farmer.national_id,   
+                farm_id: farmer.farm_id,  
+                farm_type: farmer.farm_type,  
+                crop: farmer.crop,  
+                location: farmer.location,
+                loading: false
+            })
+        }
     }
 
     render() {
@@ -69,7 +402,205 @@ class EditFarmer extends Component {
         }
         
         return<View style={styles.container}>
-            
+            <View
+                style={{marginLeft: 20, marginRight: 20}}
+            >
+                {
+                    this.state.screen === 1
+                    ? <View>
+                        <TextInput
+                            // autoFocus={true}
+                            onChangeText={(text) => this.HandleChange(text, "name")}
+                            placeholder="Farmer's name"
+                            placeholderTextColor='#40744d'
+                            value={this.state.name}
+                            style={{
+                                alignSelf: 'center', width: '100%', marginTop: 80, borderWidth: 0, borderColor: 'transparent',
+                                backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                        <TextInput
+                            // autoFocus={true}
+                            onChangeText={(text) => this.HandleChange(text, "national_id")}
+                            placeholder="National ID"
+                            placeholderTextColor='#40744d'
+                            value={this.state.national_id}
+                            style={{
+                                alignSelf: 'center', width: '100%', marginTop: 30, borderWidth: 0, borderColor: 'transparent',
+                                backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                        <TextInput
+                            // autoFocus={true}
+                            onChangeText={(text) => this.HandleChange(text, "farm_id")}
+                            placeholder="Farm ID"
+                            placeholderTextColor='#40744d'
+                            value={this.state.farm_id}
+                            style={{
+                                alignSelf: 'center', width: '100%', marginTop: 30, borderWidth: 0, borderColor: 'transparent',
+                                backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                    </View>
+                    : this.state.screen === 2
+                    ? <View>
+                        <Text style={{textAlign: 'left', color: '#40744d', marginTop: 50}}>
+                            Farm Type
+                        </Text>
+                        <DropDownPicker
+                            // multiple={true}
+                            // min={1}
+                            // max={5}
+                            open={this.state.dropdown2_open}
+                            value={this.state.farm_type}
+                            items={this.state.farm_types}
+                            setOpen={this.setOpen2}
+                            setValue={this.setValue2}
+                            // setItems={this.setItems2}
+                            style={{
+                                marginTop: 30, marginBottom: 15, backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                    </View>
+                    : this.state.screen === 3
+                    ? <View>
+                        <Text style={{textAlign: 'left', color: '#40744d', marginTop: 50}}>
+                            Crop
+                        </Text>
+                        <DropDownPicker
+                            // multiple={true}
+                            // min={1}
+                            // max={5}
+                            open={this.state.dropdown1_open}
+                            value={this.state.crop}
+                            items={this.state.crops}
+                            setOpen={this.setOpen1}
+                            setValue={this.setValue1}
+                            // setItems={this.setItems1}
+                            style={{
+                                marginTop: 30, marginBottom: 15, backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                    </View>
+                    : this.state.screen === 4
+                    ? <View>
+                        <Text style={{textAlign: 'left', color: '#40744d', marginTop: 50}}>
+                            Location
+                        </Text>
+                        <DropDownPicker
+                            // multiple={true}
+                            // min={1}
+                            // max={5}
+                            open={this.state.dropdown3_open}
+                            value={this.state.location}
+                            items={this.state.locations}
+                            setOpen={this.setOpen3}
+                            setValue={this.setValue3}
+                            // setItems={this.setItems3}
+                            style={{
+                                marginTop: 30, marginBottom: 15, backgroundColor: '#dae5dd', color: '#40744d', borderRadius: 10
+                            }}
+                        />
+                    </View>
+                    : <View></View>
+                }
+                {
+                    this.state.screen === 1
+                    ? <TouchableOpacity
+                        key='Next'
+                        onPress={() => this.setState({screen: this.state.screen+1})}
+                        style={{
+                            backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                            borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                        }}
+                    >
+                        <Text 
+                            style={{
+                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                            }}
+                        >
+                            Next
+                        </Text>
+                    </TouchableOpacity>
+                    : this.state.screen === 4
+                    ?  <View style={{marginTop: 50, flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <TouchableOpacity
+                                key='Previous'
+                                onPress={() => this.setState({screen: this.state.screen-1})}
+                                style={{
+                                    backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                                    borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                                }}
+                            >
+                                <Text 
+                                    style={{
+                                        textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                                    }}
+                                >
+                                    Previous
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <TouchableOpacity
+                                key='Submit-Farmer-Data'
+                                onPress={() => this.EditFarmer()}
+                                style={{
+                                    backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                                    borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                                }}
+                            >
+                                <Text 
+                                    style={{
+                                        textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                                    }}
+                                >
+                                    Save Details
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    : <View style={{marginTop: 50, flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <TouchableOpacity
+                                key='Previous'
+                                onPress={() => this.setState({screen: this.state.screen-1})}
+                                style={{
+                                    backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                                    borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                                }}
+                            >
+                                <Text 
+                                    style={{
+                                        textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                                    }}
+                                >
+                                    Previous
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{flexDirection: 'column', width: '50%'}}>
+                            <TouchableOpacity
+                                key='Next'
+                                onPress={() => this.setState({screen: this.state.screen+1})}
+                                style={{
+                                    backgroundColor: '#40744d', marginLeft: 'auto', marginRight: 'auto', marginTop: 170, width: '90%', height: 50, 
+                                    borderRadius: 10, borderWidth: 1, borderColor: '#40744d'
+                                }}
+                            >
+                                <Text 
+                                    style={{
+                                        textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', fontWeight: 'bold', color: '#FFFFFF', fontSize: 17
+                                    }}
+                                >
+                                    Next
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                }
+            </View>
         </View>
     }
 

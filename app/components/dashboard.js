@@ -17,6 +17,8 @@ class Dashboard extends Component {
             loading: true,
             user_access_token: '',
             user_name: '',
+            user_role: '',
+            offline: false,
             user_details: {role: ''},
             data_syncing_in_progress: false
         }
@@ -42,6 +44,12 @@ class Dashboard extends Component {
               this.setState({user_name: user_name})
             }else{ should_reload = true }
 
+            // get user role
+            let user_role = await SecureStore.getItemAsync('user_role');
+            if (user_role){
+              this.setState({user_role: user_role})
+            }else{ should_reload = true }
+
             if (should_reload == true){  const timeoutId = setTimeout(() => {this.GetUserData()}, 1000) }
             else{ this.GetAccountDetails() }
         }
@@ -58,7 +66,10 @@ class Dashboard extends Component {
 
         this.GetAccountDetails = () => {
             this.setState({loading: true})
-            axios.post(Backend_Url + 'getAccountDetails', null, { headers: { 'Access-Token': this.state.user_access_token }  })
+            axios.post(Backend_Url + 'getAccountDetails', null, { 
+                headers: { 'Access-Token': this.state.user_access_token }, 
+                timeout: 3000
+            })
             .then((res) => {
                 let result = res.data
                 this.setState({user_details: result, loading: false})
@@ -67,19 +78,23 @@ class Dashboard extends Component {
                 if (error.response){ // server responded with a non-2xx status code
                     let status_code = error.response.status
                     let result = error.response.data
+                    this.setState({offline: true, loading: false})
                     if(result === 'invalid token' || result === 'access token disabled via signout' || result === 'access token expired' || result === 'not authorized to access this'){ 
                         this.Signout()
                     }
                     else{
                         // automatically retry
-                        this.GetAccountDetails()
+                        // this.GetAccountDetails()
+                        this.setState({offline: true, loading: false})
                     }
                 }else if (error.request){ // request was made but no response was received ... network error
                     // automatically retry
-                    this.GetAccountDetails()
+                    // this.GetAccountDetails()
+                        this.setState({offline: true, loading: false})
                 }else{ // error occured during request setup ... no network access
                     // automatically retry
-                    this.GetAccountDetails()
+                    // this.GetAccountDetails()
+                        this.setState({offline: true, loading: false})
                 }
             })
         }
@@ -115,7 +130,9 @@ class Dashboard extends Component {
                 alert("Database not initialized");
                 return;
             }
-        
+            
+            this.setState({ data_syncing_in_progress: true });
+
             this.db.transaction(tx => {
                 tx.executeSql(
                     "SELECT * FROM farmers;",
@@ -164,12 +181,22 @@ class Dashboard extends Component {
                 );
             });
 
+            this.setState({ data_syncing_in_progress: false });
+
             // run syncing function after every 60 seconds
             const timeoutId = setTimeout(() => {this.SyncLocalDBFarmersToOnlineDB()}, 60000);
         };
     };
 
     async componentDidMount() {
+        this.setState({offline: false})
+        this.focusListener = this.props.navigation.addListener('focus', () => {
+            // offline db
+            this.OpenLocalDatabase()
+            // get user data
+            this.GetAccountDetails()
+        });
+
         // offline db
         this.OpenLocalDatabase()
         // get user data
@@ -230,7 +257,7 @@ class Dashboard extends Component {
                                             textAlign: 'left', marginTop: 10, color: 'grey'
                                         }}
                                     >
-                                        {this.state.user_details.role}
+                                        {this.state.user_role}
                                     </Text>
                             </View>
                             </TouchableOpacity>
@@ -279,7 +306,7 @@ class Dashboard extends Component {
                                 </TouchableOpacity>
                             </View>
                             {
-                                this.state.user_details.role === 'admin'
+                                this.state.user_role === 'admin'
                                 ? <View style={{flexDirection: 'column', backgroundColor: '#ffffff', width: '30%', height: 80, marginLeft: '4%'}}>
                                     <TouchableOpacity
                                         key='Dashboard-Add-User'
@@ -288,7 +315,7 @@ class Dashboard extends Component {
                                             backgroundColor: 'inherit', marginLeft: 'auto', marginRight: 'auto'
                                         }}
                                     >
-                                        <Feather name='users' color={'#40744d'} size={25}
+                                        <Feather name='user' color={'#40744d'} size={25}
                                             style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 10}}
                                         />
                                         <Text 
@@ -304,6 +331,40 @@ class Dashboard extends Component {
                                 : <View></View>
                             }
                         </View>
+                        <View style={{flexDirection: 'row', marginTop: 50}}>
+                            {
+                                this.state.user_role === 'admin'
+                                ? <View style={{flexDirection: 'column', backgroundColor: '#ffffff', width: '30%', height: 80}}>
+                                    <TouchableOpacity
+                                        key='Dashboard-Users'
+                                        onPress={() => this.props.navigation.navigate('Users')}
+                                        style={{
+                                            backgroundColor: 'inherit', marginLeft: 'auto', marginRight: 'auto'
+                                        }}
+                                    >
+                                        <Feather name='users' color={'#40744d'} size={25}
+                                            style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 10}}
+                                        />
+                                        <Text 
+                                            style={{
+                                                textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', color: '#40744d', fontSize: 13,
+                                                marginTop: 5
+                                            }}
+                                        >
+                                            Users
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                : <View></View>
+                            }
+                        </View>
+                        {
+                            this.state.offline === true
+                            ? <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center', marginTop: 80}}>
+                                You're currently offline. Data will be synced once you're back online.
+                            </Text>
+                            : <View></View>
+                        }
                         {
                             this.state.data_syncing_in_progress === true
                             ? <Text style={{color: '#40744d', fontWeight: 'bold', textAlign: 'center', marginTop: 80}}>
@@ -315,7 +376,7 @@ class Dashboard extends Component {
                 </ScrollView>
             </View>
             {
-                this.state.user_details.role === 'admin'
+                this.state.user_role === 'admin'
                 ? <View style={styles.bottom_bar}>
                     <View
                         style={{

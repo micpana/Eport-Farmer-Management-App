@@ -48,6 +48,15 @@ app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 cors = CORS(app)
 # *****************************************************************************************************************************
 
+# function for user object password deletion ***********************************************************************************
+def user_object_modification(user):
+    # delete password
+    del user['password']
+
+    # return modified user object
+    return user
+# *****************************************************************************************************************************
+
 # index ***********************************************************************************************************************
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -130,6 +139,7 @@ def signin():
     # return object
     return_object = {
         'username': match.firstname + ' ' + match.lastname,
+        'role': match.role,
         'token': user_access_token
     }
 
@@ -224,6 +234,25 @@ def addAccount():
 
     # return response
     response = make_response('created'); response.status = 201; return response
+# *************************************************************************************************
+
+# get all users function **************************************************************************
+@app.route('/getAllUsers', methods=['POST'])
+def getAllUsers():
+    # check user access token's validity
+    access_token_status, user_id, user_role = check_user_access_token_validity(request, 'admin') # request data, expected user role
+    if access_token_status != 'ok':  response = make_response(access_token_status); response.status = 401; return response
+
+    # get all users
+    all_users = Users.objects.all()
+
+    # modify user objects... delete passwords
+    all_users = json.loads(all_users.to_json())
+    all_users = [user_object_modification(i) for i in all_users]
+
+
+    # return response
+    response = make_response(jsonify(all_users)); response.status = 200; return response
 # *************************************************************************************************
 
 # admin remove account function *******************************************************************
@@ -483,7 +512,7 @@ def editFarmer():
     # name
     try: name = request.form['name'] 
     except: response = make_response('Name field required'); response.status = 400; return response
-    if name == '' or firstname == None: response = make_response('Name cannot be empty'); response.status = 400; return response
+    if name == '' or name == None: response = make_response('Name cannot be empty'); response.status = 400; return response
     if isinstance(name, str) == False: response = make_response('Name data type is invalid'); response.status = 400; return response
     # national ID
     try: national_id = request.form['national_id'] 
